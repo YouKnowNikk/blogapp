@@ -45,12 +45,21 @@ export const deleteBlog = createAsyncThunk('blogs/deleteBlog', async (id, { reje
     return rejectWithValue(error.response.data);
   }
 });
+export const fetchBlogById = createAsyncThunk('blogs/fetchBlogById', async (id, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`blogapp/blogs/${id}`);
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response.data);
+  }
+});
 
 const blogSlice = createSlice({
   name: 'blogs',
   initialState: {
     blogs: [],
     userBlogs: [],
+    selectedBlog: null,
     status: 'idle',
     error: null,
   },
@@ -110,6 +119,17 @@ const blogSlice = createSlice({
         state.blogs = state.blogs.filter(blog => blog._id !== action.payload);
       })
       .addCase(deleteBlog.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(fetchBlogById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchBlogById.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.selectedBlog = action.payload;
+      })
+      .addCase(fetchBlogById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

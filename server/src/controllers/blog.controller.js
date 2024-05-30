@@ -87,3 +87,23 @@ export const deleteBlog = asyncHandler(async (req, res) => {
     message: "Blog deleted successfully",
   });
 });
+
+export const fetchBlogById = asyncHandler(async (req, res) => {
+  const blogId = req.params.id;
+
+  if (!blogId) {
+    throw new ApiError(400, "Blog ID is required");
+  }
+
+  const blog = await Blog.findById(blogId);
+
+  if (!blog) {
+    throw new ApiError(404, "Blog not found");
+  }
+
+  return res.status(200).json({
+    success: true,
+    data: blog,
+    message: "Blog fetched successfully",
+  });
+});
